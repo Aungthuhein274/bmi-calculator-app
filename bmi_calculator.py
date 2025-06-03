@@ -10,102 +10,140 @@ st.title("BMI Calculator")
 st.write("This is a simple calculator for BMI (Body Mass Index) related calculations.")
 st.write("You can perform various calculations such as area, volume, and cost estimation.")
 
-# Unit conversion selection
-unit = st.selectbox("Select the unit of measurement:", [
-                    "Metric (cm/kg)", "Imperial (in/lb)"])
-st.write("You can also convert between different units of measurement.")
 
-# Input fields
-if unit == "Metric (cm/kg)":
-    height = st.number_input("Enter the height (cm):", min_value=0.0, step=0.1)
-    weight = st.number_input("Enter the weight (kg):", min_value=0.0, step=0.1)
-    height_m = height / 100
-    weight_kg = weight
-else:
-    height = st.number_input("Enter the height (in):", min_value=0.0, step=0.1)
-    weight = st.number_input("Enter the weight (lb):", min_value=0.0, step=0.1)
-    height_m = height * 0.0254
-    weight_kg = weight * 0.453592
+def calculate_bmi(height_m, weight_kg):
+    if height_m > 0:
+        return round(weight_kg / (height_m ** 2), 2)
+    return None
 
-# Additional inputs
-age = st.number_input("Enter your age:", min_value=1, max_value=110, step=1)
-gender = st.selectbox("Select your gender:", [
-                      "Prefer not to say", "Male", "Female"])
 
-# BMI Calculation
-if height_m > 0:
-    bmi = round(weight_kg / (height_m ** 2), 2)
-    st.subheader(f"Your BMI is: {bmi}")
-
-    # BMI categories
+def get_bmi_category(bmi):
+    if bmi is None:
+        return "Invalid"
     if bmi < 18.5:
-        category = "Underweight"
+        return "Underweight"
     elif 18.5 <= bmi < 24.9:
-        category = "Normal weight"
+        return "Normal weight"
     elif 25 <= bmi < 29.9:
-        category = "Overweight"
+        return "Overweight"
     else:
-        category = "Obese"
-    st.write(f"**Category:** {category}")
+        return "Obese"
 
-    # Age and gender based advice
-    if age < 18:
-        st.info("As you are underaged, BMI should be interpreted with caution.")
-    elif age <= 65:
-        st.info("As an adult, BMI is a useful tool to assess your weight status.")
-    if gender == "Male" and bmi > 25:
-        st.warning("BMI might overestimate body fat for muscular individuals.")
 
-    # Plotting
+def show_bmi_gauge(bmi):
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
-        value=bmi,
+        value=bmi if bmi else 0,
         title={"text": "BMI"},
         gauge={
             "axis": {"range": [10, 40]},
             "bar": {"color": "blue"},
             "steps": [
-                {"range": [0, 18.5], "color": "lightblue"},
-                {"range": [18.5, 24.9], "color": "lightgreen"},
-                {"range": [25, 29.9], "color": "yellow"},
-                {"range": [30, 40], "color": "red"}
+                {"range": [0, 18.5], "color": "#b3c6e7"},
+                {"range": [18.5, 24.9], "color": "#b6e7b3"},
+                {"range": [25, 29.9], "color": "#ffe699"},
+                {"range": [30, 40], "color": "#ffb3b3"}
             ]
         }
     ))
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-    # Save data
-    if st.button("Save Data"):
-        with open("bmi_data.csv", "a", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerow([age, gender, height, weight, bmi, category])
-            st.success("Data saved successfully!")
 
-    # Load data
-    if st.button("Load Data"):
-        try:
-            data = pd.read_csv("bmi_data.csv", header=None, names=[
-                               "Age", "Gender", "Height", "Weight", "BMI", "Category"])
-            st.write(data)
-        except FileNotFoundError:
-            st.error("No data found. Please save data first.")
+def save_data(age, gender, height, weight, bmi, category):
+    with open("bmi_data.csv", "a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow([age, gender, height, weight, bmi, category])
 
-    # Clear data
-    if st.button("Clear Data"):
-        try:
-            with open("bmi_data.csv", "w") as file:
-                file.truncate(0)
-            st.success("Data cleared successfully!")
-        except FileNotFoundError:
-            st.error("No data found. Please save data first.")
 
-    # Past results
-    if st.button("Past Results"):
-        try:
-            df = pd.read_csv("bmi_data.csv", header=None, names=[
-                             "Age", "Gender", "Height", "Weight", "BMI", "Category"])
-            st.dataframe(df)
-        except FileNotFoundError:
-            st.error("No data found. Please save data first.")
-else:
-    st.warning("Please enter a valid height and weight to calculate BMI.")
+def load_data():
+    try:
+        data = pd.read_csv("bmi_data.csv", header=None, names=[
+            "Age", "Gender", "Height", "Weight", "BMI", "Category"])
+        return data
+    except FileNotFoundError:
+        return None
+
+
+def clear_data():
+    try:
+        with open("bmi_data.csv", "w") as file:
+            file.truncate(0)
+        return True
+    except FileNotFoundError:
+        return False
+
+
+# UI layout
+col1, col2 = st.columns(2)
+with col1:
+    unit = st.selectbox("Select the unit of measurement:", [
+        "Metric (cm/kg)", "Imperial (in/lb)"])
+with col2:
+    st.write("")
+    st.write("")
+    st.write("You can also convert between different units of measurement.")
+
+# User input form
+with st.form("bmi_form"):
+    if unit == "Metric (cm/kg)":
+        height = st.number_input(
+            "Enter the height (cm):", min_value=0.0, step=0.1, help="Height in centimeters")
+        weight = st.number_input(
+            "Enter the weight (kg):", min_value=0.0, step=0.1, help="Weight in kilograms")
+        height_m = height / 100
+        weight_kg = weight
+    else:
+        height = st.number_input(
+            "Enter the height (in):", min_value=0.0, step=0.1, help="Height in inches")
+        weight = st.number_input(
+            "Enter the weight (lb):", min_value=0.0, step=0.1, help="Weight in pounds")
+        height_m = height * 0.0254
+        weight_kg = weight * 0.453592
+    age = st.number_input("Enter your age:", min_value=1,
+                          max_value=110, step=1)
+    gender = st.selectbox("Select your gender:", [
+        "Prefer not to say", "Male", "Female"])
+    submitted = st.form_submit_button("Calculate BMI")
+
+if submitted:
+    bmi = calculate_bmi(height_m, weight_kg)
+    if bmi:
+        st.subheader(f"Your BMI is: {bmi}")
+        category = get_bmi_category(bmi)
+        st.write(f"**Category:** {category}")
+        if age < 18:
+            st.info("As you are underaged, BMI should be interpreted with caution.")
+        elif age <= 65:
+            st.info("As an adult, BMI is a useful tool to assess your weight status.")
+        if gender == "Male" and bmi > 25:
+            st.warning(
+                "BMI might overestimate body fat for muscular individuals.")
+        show_bmi_gauge(bmi)
+        st.markdown("---")
+        col_save, col_load, col_clear, col_past = st.columns(4)
+        with col_save:
+            if st.button("Save Data"):
+                save_data(age, gender, height, weight, bmi, category)
+                st.success("Data saved successfully!")
+        with col_load:
+            if st.button("Load Data"):
+                data = load_data()
+                if data is not None:
+                    st.write(data)
+                else:
+                    st.error("No data found. Please save data first.")
+        with col_clear:
+            if st.button("Clear Data"):
+                if clear_data():
+                    st.success("Data cleared successfully!")
+                else:
+                    st.error("No data found. Please save data first.")
+        with col_past:
+            if st.button("Past Results"):
+                df = load_data()
+                if df is not None:
+                    st.dataframe(df)
+                else:
+                    st.error("No data found. Please save data first.")
+    else:
+        st.warning("Please enter a valid height and weight to calculate BMI.")

@@ -1,29 +1,48 @@
-# 🧮 BMI Calculator App (Streamlit)
+# BMI Calculator (Streamlit)
 
-This is an **advanced BMI calculator app** built with **Python** and **Streamlit**.
-It includes:
+A modern, interactive BMI (Body Mass Index) calculator built using Python and Streamlit.
 
-✅ Metric & Imperial unit conversion
-✅ Age & gender-based BMI advice
-✅ Interactive BMI gauge chart using Plotly
-✅ Save & display BMI history using CSV
+Features
+--------
+- Unit conversation ( Metric and Imperial )
+- Personalized Feedback: Age and gender-based BMI advice.
+- Interactive Visualization: BMI gauge chart powered by Plotly.
+- History Tracking: Save, view, and clear your BMI records (CSV-based).
+- Instant Results: All calculations and charts update live.
 
----
+Getting Started
+---------------
 
-## 🚀 Features
+Prerequisites:
+- Python 3.10+
+- pip
 
-- Calculate BMI in both `kg/cm` and `lbs/inches`
-- Categorize: Underweight, Normal, Overweight, Obese
-- Personalized feedback by age and gender
-- Interactive chart with **Plotly gauge**
-- Save results locally and display history
+Installation:
+Install dependencies:
 
----
+    pip install streamlit pandas plotly
 
-## 🖥️ How to Run Locally
+Run the App:
 
-### Prerequisites
-Install Python 3.10+ and pip. Then:
+    streamlit run bmi_calculator.py
 
-```bash
-pip install streamlit pandas plotly
+Usage
+-----
+- Select your preferred unit system (Metric or Imperial).
+- Enter your height, weight, age, and gender.
+- Click Calculate BMI to see your result, category, and advice.
+- Use the buttons to save, load, clear, or view past BMI records.
+
+About BMI
+---------
+BMI is a simple index of weight-for-height commonly used to classify underweight, normal weight, overweight, and obesity in adults. For children and teens, BMI should be interpreted with caution.
+
+Data Storage
+------------
+- All BMI records are saved in a local CSV file (bmi_data.csv).
+- You can clear or reload your history at any time from the app interface.
+
+License
+-------
+This project is open-source and free to use for personal and educational purposes.
+Developed By : Aung Thu Hein (Lethean Joel)
